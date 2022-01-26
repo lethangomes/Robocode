@@ -1,6 +1,7 @@
 package test;
 import robocode.*;
 import java.awt.Color;
+import java.util.Hashtable;
 import static robocode.util.Utils.normalRelativeAngleDegrees;
 
 // API help : https://robocode.sourceforge.io/docs/robocode/robocode/Robot.html
@@ -14,7 +15,7 @@ public class UltraInstinct extends TeamRobot
 	 * run: UltraInstinct's default behavior
 	 */
 	
-	double lastEnergy = 100;
+	Hashtable<String, Double> enemyEnergies = new Hashtable<String, Double>();
 	int moveDirection = 1;
 	int consecutiveVzero = 0;
 	public void run() {
@@ -38,48 +39,66 @@ public class UltraInstinct extends TeamRobot
 	 * onScannedRobot: What to do when you see another robot
 	 */
 	public void onScannedRobot(ScannedRobotEvent e) {
-		//targeting code from trackfire
-		double absoluteBearing = getHeading() + e.getBearing();
-		double bearingFromGun = normalRelativeAngleDegrees(absoluteBearing - getGunHeading());
-
-		//turn to face enemy
-		turnGunRight(bearingFromGun);
 		
-		
-		// Generates another scan event if we see a robot.
-		// We only need to call this if the gun (and therefore radar)
-		// are not turning.  Otherwise, scan is called automatically.
-		if (bearingFromGun == 0) {
-			scan();
-		}
-		if(lastEnergy != e.getEnergy())
-		{
-			setAhead((Math.random() + 1) * 100 * moveDirection);
-			lastEnergy = e.getEnergy();
-			moveDirection *= -1;
-		}
-		
-		//checks if the robot hasn't been moving and shoots
-		if(e.getVelocity() == 0)
-		{
-			consecutiveVzero++;
-			if (consecutiveVzero > 20) {
-				fire(3);
-			}
-		}
+		if (isTeammate(e.getName())){
+			System.out.println("TeamMate");
+       	}
 		else
 		{
-			consecutiveVzero = 0;
-		}
-		
-		//turnGunToAngle(absoluteBearing);
-		if(e.getDistance() < 100)
-		{
-			fire(3);
-		}
-		
-		turnToAngle(absoluteBearing + 90);
+			String name = e.getName();
+			checkName(name, e.getEnergy());
+			//targeting code from trackfire
+			double absoluteBearing = getHeading() + e.getBearing();
+			double bearingFromGun = normalRelativeAngleDegrees(absoluteBearing - getGunHeading());
 	
+			//turn to face enemy
+			turnGunRight(bearingFromGun);
+			
+			
+			// Generates another scan event if we see a robot.
+			// We only need to call this if the gun (and therefore radar)
+			// are not turning.  Otherwise, scan is called automatically.
+			if (bearingFromGun == 0) {
+				scan();
+			}
+			if(enemyEnergies.get(name) != e.getEnergy())
+			{
+				setAhead((Math.random() + 1) * 100 * moveDirection);
+				enemyEnergies.replace(name, e.getEnergy());
+				moveDirection *= -1;
+			}
+			
+			//checks if the robot hasn't been moving and shoots
+			if(e.getVelocity() == 0)
+			{
+				consecutiveVzero++;
+				if (consecutiveVzero > 20) {
+					fire(3);
+				}
+			}
+			else
+			{
+				consecutiveVzero = 0;
+			}
+			
+			//turnGunToAngle(absoluteBearing);
+			if(e.getDistance() < 100)
+			{
+				fire(3);
+			}
+			
+			turnToAngle(absoluteBearing + 90);
+			System.out.println(enemyEnergies.toString());
+		}
+	
+	}
+	
+	public void checkName(String name, double energy)
+	{
+		if(enemyEnergies.get(name) == null)
+		{
+			enemyEnergies.put(name, energy);
+		}
 	}
 	
 /*
@@ -126,7 +145,7 @@ public class UltraInstinct extends TeamRobot
 	 * onHitByBullet: What to do when you're hit by a bullet
 	 */
 	public void onBulletHit(BulletHitEvent e) {
-		lastEnergy = e.getEnergy();
+		enemyEnergies.replace(e.getName(), e.getEnergy());
 	}
 	
 	/**

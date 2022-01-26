@@ -52,7 +52,7 @@ public class NewArmaanRobot extends TeamRobot {
 			}		
 		}
 	}
-
+	
 	/**
 	 * turnToAngle: Turns tank to an angle rather than a bearing
 	 */
@@ -80,8 +80,7 @@ public class NewArmaanRobot extends TeamRobot {
 		if (isTeammate(e.getName())) { // stops the tank from shooting teammates
 	           System.out.println("Teammate Detected - Firing Halted");;
 	    } 
-		else { // when a teammates is not detected
-			
+		else { // when a teammates is not detected	
 		armaanMovement();
 		setAhead(100);
 		// Calculate exact location of the robot
@@ -108,6 +107,7 @@ public class NewArmaanRobot extends TeamRobot {
 		if (bearingFromGun == 0) {
 			scan();
 			}
+		armaanMovement();
 		}
 	}
 
