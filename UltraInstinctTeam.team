@@ -1,0 +1,7 @@
+#Robocode robot team
+#Fri Jan 28 11:52:17 PST 2022
+team.description=yes
+robocode.version=1.9.4.3
+team.author.name=
+team.version=1.0
+team.members=test.UltraInstinct*,test.Test*,test.NewRobot*,test.NewArmaanRobot*
