@@ -1,5 +1,6 @@
 package test;
 import robocode.*;
+import robocode.Rules;
 import java.awt.Color;
 import java.util.Hashtable;
 import static robocode.util.Utils.normalRelativeAngleDegrees;
@@ -30,7 +31,7 @@ public class UltraInstinct extends TeamRobot
 		// Robot main loop
 		while(true) {
 			// Replace the next 4 lines with any behavior you would like
-			
+			//scan();
 			turnGunLeft(360);
 		}
 	}
@@ -51,16 +52,6 @@ public class UltraInstinct extends TeamRobot
 			double absoluteBearing = getHeading() + e.getBearing();
 			double bearingFromGun = normalRelativeAngleDegrees(absoluteBearing - getGunHeading());
 	
-			//turn to face enemy
-			turnGunRight(bearingFromGun);
-			
-			
-			// Generates another scan event if we see a robot.
-			// We only need to call this if the gun (and therefore radar)
-			// are not turning.  Otherwise, scan is called automatically.
-			if (bearingFromGun == 0) {
-				scan();
-			}
 			if(enemyEnergies.get(name) != e.getEnergy())
 			{
 				setAhead((Math.random() + 1) * 100 * moveDirection);
@@ -88,7 +79,19 @@ public class UltraInstinct extends TeamRobot
 			}
 			
 			turnToAngle(absoluteBearing + 90);
-			System.out.println(enemyEnergies.toString());
+			System.out.println(enemyEnergies.toString());			
+
+			//turn to face enemy
+			turnGunRight(bearingFromGun);
+			
+			
+			// Generates another scan event if we see a robot.
+			// We only need to call this if the gun (and therefore radar)
+			// are not turning.  Otherwise, scan is called automatically.
+			if (bearingFromGun == 0) {
+				scan();
+			}
+		
 		}
 	
 	}
@@ -145,9 +148,18 @@ public class UltraInstinct extends TeamRobot
 	 * onHitByBullet: What to do when you're hit by a bullet
 	 */
 	public void onBulletHit(BulletHitEvent e) {
+		//updates enemy energy after hitting them
 		enemyEnergies.replace(e.getName(), e.getEnergy());
 	}
 	
+	public void onHitByBullet(HitByBulletEvent e)
+	{
+		//Gets the power of the enemy bullet and updates their energy
+		double power = e.getBullet().getPower();
+		double energyDiff = Rules.getBulletHitBonus(power);
+		enemyEnergies.replace(e.getName(), enemyEnergies.get(e.getName()) + energyDiff);
+	}
+
 	/**
 	 * onHitWall: What to do when you hit a wall
 	 */
